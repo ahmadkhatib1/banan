@@ -9,12 +9,6 @@ import AdminDashboard from './pages/dashboard/AdminDashboard';
 import CourseList from './pages/courses/CourseList';
 import CourseDetails from './pages/courses/CourseDetails';
 import LessonView from './pages/lessons/LessonView';
-import QuizList from './pages/quizzes/QuizList';
-import QuizTake from './pages/quizzes/QuizTake';
-import QuizResults from './pages/quizzes/QuizResults';
-import CreateCourse from './pages/instructor/CreateCourse';
-import CreateLesson from './pages/instructor/CreateLesson';
-import ProfileView from './pages/profile/ProfileView';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
 function App() {
@@ -55,60 +49,6 @@ function App() {
         element={
           <ProtectedRoute>
             <LessonView />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/courses/:courseId/quizzes"
-        element={
-          <ProtectedRoute>
-            <QuizList />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/quizzes/:quizId/take"
-        element={
-          <ProtectedRoute>
-            <QuizTake />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/quizzes/:quizId/results"
-        element={
-          <ProtectedRoute>
-            <QuizResults />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/instructor/courses/create"
-        element={
-          <ProtectedRoute allowedRoles={['INSTRUCTOR', 'CONTENT_ADMIN', 'SUPER_ADMIN']}>
-            <CreateCourse />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/instructor/courses/:courseId/lessons/create"
-        element={
-          <ProtectedRoute allowedRoles={['INSTRUCTOR', 'CONTENT_ADMIN', 'SUPER_ADMIN']}>
-            <CreateLesson />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <ProfileView />
           </ProtectedRoute>
         }
       />
