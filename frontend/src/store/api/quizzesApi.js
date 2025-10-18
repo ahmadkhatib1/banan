@@ -69,6 +69,11 @@ export const quizzesApi = apiSlice.injectEndpoints({
       providesTags: (result, error, id) => [{ type: 'Quiz', id }],
     }),
 
+    getQuizResults: builder.query({
+      query: ({ id, attemptId }) => `${API_ENDPOINTS.QUIZZES.BY_ID(id)}/results/${attemptId}`,
+      providesTags: (result, error, { id }) => [{ type: 'Quiz', id }],
+    }),
+
     canTakeQuiz: builder.query({
       query: (id) => API_ENDPOINTS.QUIZZES.CAN_TAKE(id),
       providesTags: (result, error, id) => [{ type: 'Quiz', id }],
@@ -133,6 +138,7 @@ export const {
   useDeleteQuizMutation,
   useTakeQuizMutation,
   useGetQuizAttemptsQuery,
+  useGetQuizResultsQuery,
   useCanTakeQuizQuery,
   useGetQuizStatisticsQuery,
   useAddQuestionMutation,

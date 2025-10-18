@@ -9,6 +9,13 @@ import AdminDashboard from './pages/dashboard/AdminDashboard';
 import CourseList from './pages/courses/CourseList';
 import CourseDetails from './pages/courses/CourseDetails';
 import LessonView from './pages/lessons/LessonView';
+import QuizList from './pages/quizzes/QuizList';
+import QuizTake from './pages/quizzes/QuizTake';
+import QuizResults from './pages/quizzes/QuizResults';
+import QuizForm from './pages/quizzes/QuizForm';
+import QuizAnalytics from './pages/quizzes/QuizAnalytics';
+import CourseForm from './pages/courses/CourseForm';
+import LessonForm from './pages/lessons/LessonForm';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
 function App() {
@@ -49,6 +56,96 @@ function App() {
         element={
           <ProtectedRoute>
             <LessonView />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/courses/:courseId/quizzes"
+        element={
+          <ProtectedRoute>
+            <QuizList />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/quizzes/:id/take"
+        element={
+          <ProtectedRoute>
+            <QuizTake />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/quizzes/:id/results/:attemptId"
+        element={
+          <ProtectedRoute>
+            <QuizResults />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/quizzes/create"
+        element={
+          <ProtectedRoute>
+            <QuizForm />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/quizzes/:id/edit"
+        element={
+          <ProtectedRoute>
+            <QuizForm />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/quizzes/:id/analytics"
+        element={
+          <ProtectedRoute>
+            <QuizAnalytics />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/courses/create"
+        element={
+          <ProtectedRoute>
+            <CourseForm />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/courses/:id/edit"
+        element={
+          <ProtectedRoute>
+            <CourseForm />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/lessons/create"
+        element={
+          <ProtectedRoute>
+            <LessonForm />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/lessons/:id/edit"
+        element={
+          <ProtectedRoute>
+            <LessonForm />
           </ProtectedRoute>
         }
       />
