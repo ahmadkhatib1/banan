@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار وظائف CRUD - منصة التعليم</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .auth-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            border-radius: 10px 10px 0 0;
+            margin-left: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert.warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden { display: none !important; }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: left;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 اختبار وظائف CRUD</h1>
+            <p>اختبار عمليات إنشاء وقراءة وتعديل وحذف البيانات</p>
+        </div>
+
+        <div class="content">
+            <div id="alertContainer"></div>
+
+            <!-- Authentication Section -->
+            <div class="auth-section">
+                <h2>🔐 تسجيل الدخول</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="username">اسم المستخدم أو البريد الإلكتروني</label>
+                        <input type="text" id="username" placeholder="admin@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">كلمة المرور</label>
+                        <input type="password" id="password" placeholder="••••••••">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="login()">تسجيل الدخول</button>
+            </div>
+
+            <!-- Main Content -->
+            <div id="mainContent" class="hidden">
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('users')">👥 المستخدمين</button>
+                    <button class="tab" onclick="showTab('categories')">📚 الفئات</button>
+                    <button class="tab" onclick="showTab('courses')">🎓 الدورات</button>
+                    <button class="tab" onclick="showTab('lessons')">📖 الدروس</button>
+                </div>
+
+                <!-- Users Tab -->
+                <div id="users" class="tab-content active">
+                    <h3>إدارة المستخدمين</h3>
+                    <button class="btn btn-success" onclick="showCreateUserModal()">إضافة مستخدم جديد</button>
+                    <button class="btn btn-info" onclick="loadUsers()">تحديث القائمة</button>
+                    
+                    <div id="usersTable"></div>
+                </div>
+
+                <!-- Categories Tab -->
+                <div id="categories" class="tab-content">
+                    <h3>إدارة الفئات</h3>
+                    <button class="btn btn-success" onclick="showCreateCategoryModal()">إضافة فئة جديدة</button>
+                    <button class="btn btn-info" onclick="loadCategories()">تحديث القائمة</button>
+                    
+                    <div id="categoriesTable"></div>
+                </div>
+
+                <!-- Courses Tab -->
+                <div id="courses" class="tab-content">
+                    <h3>إدارة الدورات</h3>
+                    <button class="btn btn-success" onclick="showCreateCourseModal()">إضافة دورة جديدة</button>
+                    <button class="btn btn-info" onclick="loadCourses()">تحديث القائمة</button>
+                    
+                    <div id="coursesTable"></div>
+                </div>
+
+                <!-- Lessons Tab -->
+                <div id="lessons" class="tab-content">
+                    <h3>إدارة الدروس</h3>
+                    <button class="btn btn-success" onclick="showCreateLessonModal()">إضافة درس جديد</button>
+                    <button class="btn btn-info" onclick="loadLessons()">تحديث القائمة</button>
+                    
+                    <div id="lessonsTable"></div>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p id="loadingText">جاري المعالجة...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('userModal')">&times;</span>
+            <h3 id="userModalTitle">إضافة مستخدم جديد</h3>
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="userFirstName">الاسم الأول</label>
+                    <input type="text" id="userFirstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="userLastName">الاسم الأخير</label>
+                    <input type="text" id="userLastName" required>
+                </div>
+                <div class="form-group">
+                    <label for="userUsername">اسم المستخدم</label>
+                    <input type="text" id="userUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">البريد الإلكتروني</label>
+                    <input type="email" id="userEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="userRole">الدور</label>
+                    <select id="userRole" required>
+                        <option value="STUDENT">طالب</option>
+                        <option value="INSTRUCTOR">مدرب</option>
+                        <option value="ADMIN">مسؤول</option>
+                    </select>
+                </div>
+                <div class="form-group" id="passwordGroup">
+                    <label for="userPassword">كلمة المرور</label>
+                    <input type="password" id="userPassword" minlength="8">
+                </div>
+                <button type="submit" class="btn btn-primary">حفظ</button>
+                <button type="button" class="btn btn-warning" onclick="closeModal('userModal')">إلغاء</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('categoryModal')">&times;</span>
+            <h3 id="categoryModalTitle">إضافة فئة جديدة</h3>
+            <form id="categoryForm">
+                <div class="form-group">
+                    <label for="categoryName">اسم الفئة</label>
+                    <input type="text" id="categoryName" required>
+                </div>
+                <div class="form-group">
+                    <label for="categoryDescription">الوصف</label>
+                    <textarea id="categoryDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="categoryColor">اللون</label>
+                    <input type="color" id="categoryColor" value="#3498db">
+                </div>
+                <button type="submit" class="btn btn-primary">حفظ</button>
+                <button type="button" class="btn btn-warning" onclick="closeModal('categoryModal')">إلغاء</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let authToken = null;
+        let currentEditId = null;
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `<div class="alert ${type}">${message}</div>`;
+            alertContainer.querySelector('.alert').style.display = 'block';
+            setTimeout(() => alertContainer.innerHTML = '', 5000);
+        }
+
+        function showLoading(text = 'جاري المعالجة...') {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showAlert('يرجى إدخال اسم المستخدم وكلمة المرور', 'warning');
+                return;
+            }
+
+            showLoading('جاري تسجيل الدخول...');
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+                hideLoading();
+
+                if (result.success) {
+                    authToken = result.data.token;
+                    showAlert('تم تسجيل الدخول بنجاح', 'success');
+                    document.getElementById('mainContent').classList.remove('hidden');
+                    loadUsers();
+                } else {
+                    showAlert('خطأ في تسجيل الدخول: ' + result.message, 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('خطأ في الاتصال بالخادم', 'error');
+            }
+        }
+
+        async function makeRequest(url, options = {}) {
+            const headers = {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+
+            const response = await fetch(url, { ...options, headers });
+            return response.json();
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Load data for the selected tab
+            switch(tabName) {
+                case 'users': loadUsers(); break;
+                case 'categories': loadCategories(); break;
+                case 'courses': loadCourses(); break;
+                case 'lessons': loadLessons(); break;
+            }
+        }
+
+        async function loadUsers() {
+            showLoading('جاري تحميل المستخدمين...');
+            try {
+                const result = await makeRequest(`${API_BASE}/users`);
+                hideLoading();
+
+                if (result.success) {
+                    displayUsersTable(result.data);
+                } else {
+                    showAlert('خطأ في تحميل المستخدمين: ' + result.message, 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('خطأ في الاتصال بالخادم', 'error');
+            }
+        }
+
+        function displayUsersTable(users) {
+            const tableHtml = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>الإجراءات</th>
+                            <th>الدور</th>
+                            <th>البريد الإلكتروني</th>
+                            <th>اسم المستخدم</th>
+                            <th>الاسم</th>
+                            <th>المعرف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-warning" onclick="editUser(${user.id})">تعديل</button>
+                                        <button class="btn btn-danger" onclick="deleteUser(${user.id})">حذف</button>
+                                    </div>
+                                </td>
+                                <td>${user.role}</td>
+                                <td>${user.email}</td>
+                                <td>${user.username}</td>
+                                <td>${user.first_name} ${user.last_name}</td>
+                                <td>${user.id}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('usersTable').innerHTML = tableHtml;
+        }
+
+        async function loadCategories() {
+            showLoading('جاري تحميل الفئات...');
+            try {
+                const result = await makeRequest(`${API_BASE}/categories`);
+                hideLoading();
+
+                if (result.success) {
+                    displayCategoriesTable(result.data);
+                } else {
+                    showAlert('خطأ في تحميل الفئات: ' + result.message, 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('خطأ في الاتصال بالخادم', 'error');
+            }
+        }
+
+        function displayCategoriesTable(categories) {
+            const tableHtml = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>الإجراءات</th>
+                            <th>اللون</th>
+                            <th>الوصف</th>
+                            <th>الاسم</th>
+                            <th>المعرف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${categories.map(category => `
+                            <tr>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-warning" onclick="editCategory(${category.id})">تعديل</button>
+                                        <button class="btn btn-danger" onclick="deleteCategory(${category.id})">حذف</button>
+                                    </div>
+                                </td>
+                                <td><div style="width: 20px; height: 20px; background: ${category.color}; border-radius: 50%; display: inline-block;"></div></td>
+                                <td>${category.description || ''}</td>
+                                <td>${category.name}</td>
+                                <td>${category.id}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('categoriesTable').innerHTML = tableHtml;
+        }
+
+        async function loadCourses() {
+            showLoading('جاري تحميل الدورات...');
+            try {
+                const result = await makeRequest(`${API_BASE}/courses`);
+                hideLoading();
+
+                if (result.success) {
+                    displayCoursesTable(result.data);
+                } else {
+                    showAlert('خطأ في تحميل الدورات: ' + result.message, 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('خطأ في الاتصال بالخادم', 'error');
+            }
+        }
+
+        function displayCoursesTable(courses) {
+            const tableHtml = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>الإجراءات</th>
+                            <th>المستوى</th>
+                            <th>المدة</th>
+                            <th>السعر</th>
+                            <th>العنوان</th>
+                            <th>المعرف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${courses.map(course => `
+                            <tr>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-warning" onclick="editCourse(${course.id})">تعديل</button>
+                                        <button class="btn btn-danger" onclick="deleteCourse(${course.id})">حذف</button>
+                                    </div>
+                                </td>
+                                <td>${course.level}</td>
+                                <td>${course.duration} ساعة</td>
+                                <td>${course.price} ريال</td>
+                                <td>${course.title}</td>
+                                <td>${course.id}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('coursesTable').innerHTML = tableHtml;
+        }
+
+        async function loadLessons() {
+            showLoading('جاري تحميل الدروس...');
+            try {
+                const result = await makeRequest(`${API_BASE}/lessons`);
+                hideLoading();
+
+                if (result.success) {
+                    displayLessonsTable(result.data);
+                } else {
+                    showAlert('خطأ في تحميل الدروس: ' + result.message, 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('خطأ في الاتصال بالخادم', 'error');
+            }
+        }
+
+        function displayLessonsTable(lessons) {
+            const tableHtml = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>الإجراءات</th>
+                            <th>المدة</th>
+                            <th>الترتيب</th>
+                            <th>الدورة</th>
+                            <th>العنوان</th>
+                            <th>المعرف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${lessons.map(lesson => `
+                            <tr>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-warning" onclick="editLesson(${lesson.id})">تعديل</button>
+                                        <button class="btn btn-danger" onclick="deleteLesson(${lesson.id})">حذف</button>
+                                    </div>
+                                </td>
+                                <td>${lesson.duration} دقيقة</td>
+                                <td>${lesson.order_index}</td>
+                                <td>${lesson.course_id}</td>
+                                <td>${lesson.title}</td>
+                                <td>${lesson.id}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('lessonsTable').innerHTML = tableHtml;
+        }
+
+        // Modal functions
+        function showCreateUserModal() {
+            currentEditId = null;
+            document.getElementById('userModalTitle').textContent = 'إضافة مستخدم جديد';
+            document.getElementById('userForm').reset();
+            document.getElementById('passwordGroup').style.display = 'block';
+            document.getElementById('userPassword').required = true;
+            document.getElementById('userModal').style.display = 'block';
+        }
+
+        function showCreateCategoryModal() {
+            currentEditId = null;
+            document.getElementById('categoryModalTitle').textContent = 'إضافة فئة جديدة';
+            document.getElementById('categoryForm').reset();
+            document.getElementById('categoryModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // CRUD operations
+        async function deleteUser(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
+
+            showLoading('جاري حذف المستخدم...');
+            try {
+                const result = await makeRequest(`${API_BASE}/users/${id}`, { method: 'DELETE' });
+                hideLoading();
+
+                if (result.success) {
+                    showAlert('تم حذف المستخدم بنجاح', 'success');
+                    loadUsers();
+                } else {
+                    showAlert('خطأ في حذف المستخدم: ' + result.message, 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('خطأ في الاتصال بالخادم', 'error');
+            }
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm('هل أنت متأكد من حذف هذه الفئة؟')) return;
+
+            showLoading('جاري حذف الفئة...');
+            try {
+                const result = await makeRequest(`${API_BASE}/categories/${id}`, { method: 'DELETE' });
+                hideLoading();
+
+                if (result.success) {
+                    showAlert('تم حذف الفئة بنجاح', 'success');
+                    loadCategories();
+                } else {
+                    showAlert('خطأ في حذف الفئة: ' + result.message, 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('خطأ في الاتصال بالخادم', 'error');
+            }
+        }
+
+        // Form submissions
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const userData = {
+                first_name: document.getElementById('userFirstName').value,
+                last_name: document.getElementById('userLastName').value,
+                username: document.getElementById('userUsername').value,
+                email: document.getElementById('userEmail').value,
+                role: document.getElementById('userRole').value
+            };
+
+            if (document.getElementById('userPassword').value) {
+                userData.password = document.getElementById('userPassword').value;
+            }
+
+            showLoading(currentEditId ? 'جاري تحديث المستخدم...' : 'جاري إنشاء المستخدم...');
+
+            try {
+                const url = currentEditId ? `${API_BASE}/users/${currentEditId}` : `${API_BASE}/auth/register`;
+                const method = currentEditId ? 'PUT' : 'POST';
+                
+                const result = await makeRequest(url, {
+                    method,
+                    body: JSON.stringify(userData)
+                });
+
+                hideLoading();
+
+                if (result.success) {
+                    showAlert(currentEditId ? 'تم تحديث المستخدم بنجاح' : 'تم إنشاء المستخدم بنجاح', 'success');
+                    closeModal('userModal');
+                    loadUsers();
+                } else {
+                    showAlert('خطأ: ' + result.message, 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('خطأ في الاتصال بالخادم', 'error');
+            }
+        });
+
+        document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const categoryData = {
+                name: document.getElementById('categoryName').value,
+                description: document.getElementById('categoryDescription').value,
+                color: document.getElementById('categoryColor').value
+            };
+
+            showLoading(currentEditId ? 'جاري تحديث الفئة...' : 'جاري إنشاء الفئة...');
+
+            try {
+                const url = currentEditId ? `${API_BASE}/categories/${currentEditId}` : `${API_BASE}/categories`;
+                const method = currentEditId ? 'PUT' : 'POST';
+                
+                const result = await makeRequest(url, {
+                    method,
+                    body: JSON.stringify(categoryData)
+                });
+
+                hideLoading();
+
+                if (result.success) {
+                    showAlert(currentEditId ? 'تم تحديث الفئة بنجاح' : 'تم إنشاء الفئة بنجاح', 'success');
+                    closeModal('categoryModal');
+                    loadCategories();
+                } else {
+                    showAlert('خطأ: ' + result.message, 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('خطأ في الاتصال بالخادم', 'error');
+            }
+        });
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

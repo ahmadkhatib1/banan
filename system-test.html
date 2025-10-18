@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار تكامل النظام - منصة التعليم</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .test-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .test-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .test-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .test-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .status-pending { background: #ffc107; color: #212529; }
+        .status-running { background: #17a2b8; color: white; }
+        .status-success { background: #28a745; color: white; }
+        .status-error { background: #dc3545; color: white; }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .test-result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .result-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert.warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+
+        .log-container {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .log-timestamp {
+            color: #a0aec0;
+        }
+
+        .log-success { color: #68d391; }
+        .log-error { color: #fc8181; }
+        .log-warning { color: #f6e05e; }
+        .log-info { color: #63b3ed; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 اختبار تكامل النظام</h1>
+            <p>فحص شامل لجميع مكونات منصة التعليم</p>
+        </div>
+
+        <div class="content">
+            <div id="alertContainer"></div>
+
+            <!-- Overall Progress -->
+            <div class="test-section">
+                <h2>📊 التقدم العام</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="overallProgress"></div>
+                </div>
+                <div class="summary-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalTests">0</div>
+                        <div class="stat-label">إجمالي الاختبارات</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="passedTests">0</div>
+                        <div class="stat-label">اختبارات ناجحة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="failedTests">0</div>
+                        <div class="stat-label">اختبارات فاشلة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="runningTests">0</div>
+                        <div class="stat-label">قيد التشغيل</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Server Tests -->
+            <div class="test-section">
+                <h2>🖥️ اختبارات الخادم</h2>
+                <div class="test-grid">
+                    <div class="test-card">
+                        <h3>🔌 اتصال الخادم</h3>
+                        <div class="test-status status-pending" id="serverStatus">في الانتظار</div>
+                        <p>فحص اتصال الخادم على المنفذ 5000</p>
+                        <button class="btn btn-primary" onclick="testServerConnection()">اختبار الاتصال</button>
+                        <div class="test-result" id="serverResult"></div>
+                    </div>
+
+                    <div class="test-card">
+                        <h3>🗄️ قاعدة البيانات</h3>
+                        <div class="test-status status-pending" id="dbStatus">في الانتظار</div>
+                        <p>فحص اتصال قاعدة البيانات SQLite</p>
+                        <button class="btn btn-primary" onclick="testDatabaseConnection()">اختبار قاعدة البيانات</button>
+                        <div class="test-result" id="dbResult"></div>
+                    </div>
+
+                    <div class="test-card">
+                        <h3>🔐 نظام المصادقة</h3>
+                        <div class="test-status status-pending" id="authStatus">في الانتظار</div>
+                        <p>فحص نظام تسجيل الدخول والمصادقة</p>
+                        <button class="btn btn-primary" onclick="testAuthentication()">اختبار المصادقة</button>
+                        <div class="test-result" id="authResult"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Tests -->
+            <div class="test-section">
+                <h2>🔗 اختبارات API</h2>
+                <div class="test-grid">
+                    <div class="test-card">
+                        <h3>👥 إدارة المستخدمين</h3>
+                        <div class="test-status status-pending" id="usersApiStatus">في الانتظار</div>
+                        <p>اختبار عمليات CRUD للمستخدمين</p>
+                        <button class="btn btn-primary" onclick="testUsersAPI()">اختبار المستخدمين</button>
+                        <div class="test-result" id="usersApiResult"></div>
+                    </div>
+
+                    <div class="test-card">
+                        <h3>📚 إدارة الفئات</h3>
+                        <div class="test-status status-pending" id="categoriesApiStatus">في الانتظار</div>
+                        <p>اختبار عمليات CRUD للفئات</p>
+                        <button class="btn btn-primary" onclick="testCategoriesAPI()">اختبار الفئات</button>
+                        <div class="test-result" id="categoriesApiResult"></div>
+                    </div>
+
+                    <div class="test-card">
+                        <h3>🎓 إدارة الدورات</h3>
+                        <div class="test-status status-pending" id="coursesApiStatus">في الانتظار</div>
+                        <p>اختبار عمليات CRUD للدورات</p>
+                        <button class="btn btn-primary" onclick="testCoursesAPI()">اختبار الدورات</button>
+                        <div class="test-result" id="coursesApiResult"></div>
+                    </div>
+
+                    <div class="test-card">
+                        <h3>📖 إدارة الدروس</h3>
+                        <div class="test-status status-pending" id="lessonsApiStatus">في الانتظار</div>
+                        <p>اختبار عمليات CRUD للدروس</p>
+                        <button class="btn btn-primary" onclick="testLessonsAPI()">اختبار الدروس</button>
+                        <div class="test-result" id="lessonsApiResult"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Tests -->
+            <div class="test-section">
+                <h2>👨‍💼 اختبارات الإدارة</h2>
+                <div class="test-grid">
+                    <div class="test-card">
+                        <h3>🔧 إعداد المسؤول</h3>
+                        <div class="test-status status-pending" id="adminSetupStatus">في الانتظار</div>
+                        <p>اختبار إعداد حساب المسؤول الأول</p>
+                        <button class="btn btn-primary" onclick="testAdminSetup()">اختبار الإعداد</button>
+                        <div class="test-result" id="adminSetupResult"></div>
+                    </div>
+
+                    <div class="test-card">
+                        <h3>🌱 البيانات التجريبية</h3>
+                        <div class="test-status status-pending" id="seedStatus">في الانتظار</div>
+                        <p>اختبار نظام إنشاء البيانات التجريبية</p>
+                        <button class="btn btn-primary" onclick="testSeedData()">اختبار البيانات</button>
+                        <div class="test-result" id="seedResult"></div>
+                    </div>
+
+                    <div class="test-card">
+                        <h3>🛡️ الأذونات</h3>
+                        <div class="test-status status-pending" id="permissionsStatus">في الانتظار</div>
+                        <p>اختبار نظام الأذونات والأدوار</p>
+                        <button class="btn btn-primary" onclick="testPermissions()">اختبار الأذونات</button>
+                        <div class="test-result" id="permissionsResult"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Panel -->
+            <div class="test-section">
+                <h2>🎮 لوحة التحكم</h2>
+                <div style="text-align: center;">
+                    <button class="btn btn-success" onclick="runAllTests()">🚀 تشغيل جميع الاختبارات</button>
+                    <button class="btn btn-warning" onclick="resetTests()">🔄 إعادة تعيين</button>
+                    <button class="btn btn-info" onclick="exportResults()">📊 تصدير النتائج</button>
+                </div>
+            </div>
+
+            <!-- Test Log -->
+            <div class="test-section">
+                <h2>📝 سجل الاختبارات</h2>
+                <div class="log-container" id="testLog">
+                    <div class="log-entry">
+                        <span class="log-timestamp">[00:00:00]</span>
+                        <span class="log-info">نظام الاختبار جاهز للتشغيل</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p id="loadingText">جاري تشغيل الاختبارات...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let testResults = {};
+        let authToken = null;
+
+        // Test configuration
+        const tests = [
+            'server', 'db', 'auth', 'usersApi', 'categoriesApi', 
+            'coursesApi', 'lessonsApi', 'adminSetup', 'seed', 'permissions'
+        ];
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `<div class="alert ${type}">${message}</div>`;
+            alertContainer.querySelector('.alert').style.display = 'block';
+            setTimeout(() => alertContainer.innerHTML = '', 5000);
+        }
+
+        function logMessage(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString('ar-SA');
+            const logContainer = document.getElementById('testLog');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span class="log-${type}">${message}</span>
+            `;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateTestStatus(testId, status, message = '') {
+            const statusElement = document.getElementById(`${testId}Status`);
+            const resultElement = document.getElementById(`${testId}Result`);
+            
+            statusElement.className = `test-status status-${status}`;
+            statusElement.textContent = getStatusText(status);
+            
+            if (message) {
+                resultElement.className = `test-result result-${status === 'success' ? 'success' : 'error'}`;
+                resultElement.textContent = message;
+                resultElement.style.display = 'block';
+            }
+            
+            testResults[testId] = { status, message };
+            updateOverallProgress();
+        }
+
+        function getStatusText(status) {
+            const statusTexts = {
+                'pending': 'في الانتظار',
+                'running': 'قيد التشغيل',
+                'success': 'نجح',
+                'error': 'فشل'
+            };
+            return statusTexts[status] || status;
+        }
+
+        function updateOverallProgress() {
+            const total = tests.length;
+            const completed = Object.keys(testResults).length;
+            const passed = Object.values(testResults).filter(r => r.status === 'success').length;
+            const failed = Object.values(testResults).filter(r => r.status === 'error').length;
+            const running = Object.values(testResults).filter(r => r.status === 'running').length;
+            
+            const progress = (completed / total) * 100;
+            
+            document.getElementById('overallProgress').style.width = `${progress}%`;
+            document.getElementById('totalTests').textContent = total;
+            document.getElementById('passedTests').textContent = passed;
+            document.getElementById('failedTests').textContent = failed;
+            document.getElementById('runningTests').textContent = running;
+        }
+
+        async function testServerConnection() {
+            updateTestStatus('server', 'running');
+            logMessage('بدء اختبار اتصال الخادم...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`, {
+                    method: 'GET',
+                    timeout: 5000
+                });
+                
+                if (response.ok) {
+                    updateTestStatus('server', 'success', 'الخادم يعمل بشكل طبيعي');
+                    logMessage('✅ اتصال الخادم ناجح', 'success');
+                } else {
+                    updateTestStatus('server', 'error', `خطأ في الخادم: ${response.status}`);
+                    logMessage('❌ فشل اتصال الخادم', 'error');
+                }
+            } catch (error) {
+                updateTestStatus('server', 'error', 'فشل في الاتصال بالخادم');
+                logMessage('❌ خطأ في الاتصال بالخادم: ' + error.message, 'error');
+            }
+        }
+
+        async function testDatabaseConnection() {
+            updateTestStatus('db', 'running');
+            logMessage('بدء اختبار اتصال قاعدة البيانات...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/test/database`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateTestStatus('db', 'success', 'قاعدة البيانات متصلة بنجاح');
+                    logMessage('✅ اتصال قاعدة البيانات ناجح', 'success');
+                } else {
+                    updateTestStatus('db', 'error', 'فشل في اتصال قاعدة البيانات');
+                    logMessage('❌ فشل اتصال قاعدة البيانات', 'error');
+                }
+            } catch (error) {
+                updateTestStatus('db', 'error', 'خطأ في اختبار قاعدة البيانات');
+                logMessage('❌ خطأ في اختبار قاعدة البيانات: ' + error.message, 'error');
+            }
+        }
+
+        async function testAuthentication() {
+            updateTestStatus('auth', 'running');
+            logMessage('بدء اختبار نظام المصادقة...', 'info');
+            
+            try {
+                // Test login with default admin credentials
+                const loginResponse = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'admin@example.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                const loginResult = await loginResponse.json();
+                
+                if (loginResult.success) {
+                    authToken = loginResult.data.token;
+                    updateTestStatus('auth', 'success', 'نظام المصادقة يعمل بشكل صحيح');
+                    logMessage('✅ اختبار المصادقة ناجح', 'success');
+                } else {
+                    updateTestStatus('auth', 'error', 'فشل في اختبار المصادقة');
+                    logMessage('❌ فشل اختبار المصادقة', 'error');
+                }
+            } catch (error) {
+                updateTestStatus('auth', 'error', 'خطأ في اختبار المصادقة');
+                logMessage('❌ خطأ في اختبار المصادقة: ' + error.message, 'error');
+            }
+        }
+
+        async function testUsersAPI() {
+            updateTestStatus('usersApi', 'running');
+            logMessage('بدء اختبار API المستخدمين...', 'info');
+            
+            try {
+                if (!authToken) {
+                    await testAuthentication();
+                }
+                
+                const response = await fetch(`${API_BASE}/test/users`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateTestStatus('usersApi', 'success', `تم العثور على ${result.data.length} مستخدم`);
+                    logMessage('✅ اختبار API المستخدمين ناجح', 'success');
+                } else {
+                    updateTestStatus('usersApi', 'error', 'فشل في اختبار API المستخدمين');
+                    logMessage('❌ فشل اختبار API المستخدمين', 'error');
+                }
+            } catch (error) {
+                updateTestStatus('usersApi', 'error', 'خطأ في اختبار API المستخدمين');
+                logMessage('❌ خطأ في اختبار API المستخدمين: ' + error.message, 'error');
+            }
+        }
+
+        async function testCategoriesAPI() {
+            updateTestStatus('categoriesApi', 'running');
+            logMessage('بدء اختبار API الفئات...', 'info');
+            
+            try {
+                if (!authToken) {
+                    await testAuthentication();
+                }
+                
+                const response = await fetch(`${API_BASE}/test/categories`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateTestStatus('categoriesApi', 'success', `تم العثور على ${result.data.length} فئة`);
+                    logMessage('✅ اختبار API الفئات ناجح', 'success');
+                } else {
+                    updateTestStatus('categoriesApi', 'error', 'فشل في اختبار API الفئات');
+                    logMessage('❌ فشل اختبار API الفئات', 'error');
+                }
+            } catch (error) {
+                updateTestStatus('categoriesApi', 'error', 'خطأ في اختبار API الفئات');
+                logMessage('❌ خطأ في اختبار API الفئات: ' + error.message, 'error');
+            }
+        }
+
+        async function testCoursesAPI() {
+            updateTestStatus('coursesApi', 'running');
+            logMessage('بدء اختبار API الدورات...', 'info');
+            
+            try {
+                if (!authToken) {
+                    await testAuthentication();
+                }
+                
+                const response = await fetch(`${API_BASE}/test/courses`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateTestStatus('coursesApi', 'success', `تم العثور على ${result.data.length} دورة`);
+                    logMessage('✅ اختبار API الدورات ناجح', 'success');
+                } else {
+                    updateTestStatus('coursesApi', 'error', 'فشل في اختبار API الدورات');
+                    logMessage('❌ فشل اختبار API الدورات', 'error');
+                }
+            } catch (error) {
+                updateTestStatus('coursesApi', 'error', 'خطأ في اختبار API الدورات');
+                logMessage('❌ خطأ في اختبار API الدورات: ' + error.message, 'error');
+            }
+        }
+
+        async function testLessonsAPI() {
+            updateTestStatus('lessonsApi', 'running');
+            logMessage('بدء اختبار API الدروس...', 'info');
+            
+            try {
+                if (!authToken) {
+                    await testAuthentication();
+                }
+                
+                const response = await fetch(`${API_BASE}/test/lessons`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateTestStatus('lessonsApi', 'success', `تم العثور على ${result.data.length} درس`);
+                    logMessage('✅ اختبار API الدروس ناجح', 'success');
+                } else {
+                    updateTestStatus('lessonsApi', 'error', 'فشل في اختبار API الدروس');
+                    logMessage('❌ فشل اختبار API الدروس', 'error');
+                }
+            } catch (error) {
+                updateTestStatus('lessonsApi', 'error', 'خطأ في اختبار API الدروس');
+                logMessage('❌ خطأ في اختبار API الدروس: ' + error.message, 'error');
+            }
+        }
+
+        async function testAdminSetup() {
+            updateTestStatus('adminSetup', 'running');
+            logMessage('بدء اختبار إعداد المسؤول...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/setup-required`);
+                const result = await response.json();
+                
+                if (result.success !== undefined) {
+                    updateTestStatus('adminSetup', 'success', 'نظام إعداد المسؤول يعمل بشكل صحيح');
+                    logMessage('✅ اختبار إعداد المسؤول ناجح', 'success');
+                } else {
+                    updateTestStatus('adminSetup', 'error', 'فشل في اختبار إعداد المسؤول');
+                    logMessage('❌ فشل اختبار إعداد المسؤول', 'error');
+                }
+            } catch (error) {
+                updateTestStatus('adminSetup', 'error', 'خطأ في اختبار إعداد المسؤول');
+                logMessage('❌ خطأ في اختبار إعداد المسؤول: ' + error.message, 'error');
+            }
+        }
+
+        async function testSeedData() {
+            updateTestStatus('seed', 'running');
+            logMessage('بدء اختبار البيانات التجريبية...', 'info');
+            
+            try {
+                if (!authToken) {
+                    await testAuthentication();
+                }
+                
+                const response = await fetch(`${API_BASE}/seed/summary`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateTestStatus('seed', 'success', 'نظام البيانات التجريبية يعمل بشكل صحيح');
+                    logMessage('✅ اختبار البيانات التجريبية ناجح', 'success');
+                } else {
+                    updateTestStatus('seed', 'error', 'فشل في اختبار البيانات التجريبية');
+                    logMessage('❌ فشل اختبار البيانات التجريبية', 'error');
+                }
+            } catch (error) {
+                updateTestStatus('seed', 'error', 'خطأ في اختبار البيانات التجريبية');
+                logMessage('❌ خطأ في اختبار البيانات التجريبية: ' + error.message, 'error');
+            }
+        }
+
+        async function testPermissions() {
+            updateTestStatus('permissions', 'running');
+            logMessage('بدء اختبار الأذونات...', 'info');
+            
+            try {
+                if (!authToken) {
+                    await testAuthentication();
+                }
+                
+                // Test accessing admin endpoint
+                const response = await fetch(`${API_BASE}/admin/admins`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                const result = await response.json();
+                
+                if (response.status === 200 || response.status === 403) {
+                    updateTestStatus('permissions', 'success', 'نظام الأذونات يعمل بشكل صحيح');
+                    logMessage('✅ اختبار الأذونات ناجح', 'success');
+                } else {
+                    updateTestStatus('permissions', 'error', 'فشل في اختبار الأذونات');
+                    logMessage('❌ فشل اختبار الأذونات', 'error');
+                }
+            } catch (error) {
+                updateTestStatus('permissions', 'error', 'خطأ في اختبار الأذونات');
+                logMessage('❌ خطأ في اختبار الأذونات: ' + error.message, 'error');
+            }
+        }
+
+        async function runAllTests() {
+            logMessage('🚀 بدء تشغيل جميع الاختبارات...', 'info');
+            
+            const testFunctions = [
+                testServerConnection,
+                testDatabaseConnection,
+                testAuthentication,
+                testUsersAPI,
+                testCategoriesAPI,
+                testCoursesAPI,
+                testLessonsAPI,
+                testAdminSetup,
+                testSeedData,
+                testPermissions
+            ];
+            
+            for (const testFunction of testFunctions) {
+                await testFunction();
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second between tests
+            }
+            
+            logMessage('🏁 انتهاء جميع الاختبارات', 'info');
+            
+            const passed = Object.values(testResults).filter(r => r.status === 'success').length;
+            const total = tests.length;
+            
+            if (passed === total) {
+                showAlert('🎉 جميع الاختبارات نجحت! النظام جاهز للاستخدام', 'success');
+            } else {
+                showAlert(`⚠️ ${passed}/${total} اختبارات نجحت. يرجى مراجعة الاختبارات الفاشلة`, 'warning');
+            }
+        }
+
+        function resetTests() {
+            testResults = {};
+            authToken = null;
+            
+            tests.forEach(testId => {
+                updateTestStatus(testId, 'pending');
+                document.getElementById(`${testId}Result`).style.display = 'none';
+            });
+            
+            document.getElementById('testLog').innerHTML = `
+                <div class="log-entry">
+                    <span class="log-timestamp">[${new Date().toLocaleTimeString('ar-SA')}]</span>
+                    <span class="log-info">تم إعادة تعيين جميع الاختبارات</span>
+                </div>
+            `;
+            
+            updateOverallProgress();
+            logMessage('🔄 تم إعادة تعيين جميع الاختبارات', 'info');
+        }
+
+        function exportResults() {
+            const results = {
+                timestamp: new Date().toISOString(),
+                summary: {
+                    total: tests.length,
+                    passed: Object.values(testResults).filter(r => r.status === 'success').length,
+                    failed: Object.values(testResults).filter(r => r.status === 'error').length
+                },
+                tests: testResults
+            };
+            
+            const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `test-results-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            logMessage('📊 تم تصدير نتائج الاختبارات', 'info');
+        }
+
+        // Initialize
+        updateOverallProgress();
+    </script>
+</body>
+</html>
